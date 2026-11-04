@@ -1,11 +1,25 @@
+//map: zoom out as far as full NY + NJ, half-step scroll zoom
+const ny_nj_bounds = L.latLngBounds([[38.75, -79.8], [45.05, -71.75]]);
 const nyc_map = L.map("nyc_map", {
-    maxBounds: [[40.49, -74.27], [40.92, -73.68]],
-    minZoom: 12
+    maxBounds: ny_nj_bounds.pad(0.1),
+    zoomSnap: 0.5,
+    zoomDelta: 0.5,
+    wheelPxPerZoomLevel: 120
 }).setView([40.726997, -73.984291], 12);
 
+//min zoom = the zoom where both states just fit the screen (recomputed on resize)
+function updateMinZoom() {
+    nyc_map.setMinZoom(nyc_map.getBoundsZoom(ny_nj_bounds));
+}
+updateMinZoom();
+nyc_map.on("resize", updateMinZoom);
+
+//search radius (slider controlled)
 let search_zone;
-const search_radius_m = 500;
-const search_radius_km = search_radius_m / 1000;
+let last_click;
+let search_radius_m = 500;
+const radius_slider = document.getElementById("radius_slider");
+const radius_value = document.getElementById("radius_value");
 //iNaturalist api consts
 // https://api.inaturalist.org/v1/observations/species_counts?place_id=48&quality_grade=research&lat=40.78&lng=-73.96&radius=0.5
 const base_url = "https://api.inaturalist.org/v1/observations";
@@ -21,20 +35,40 @@ L.tileLayer(`https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png?key=
     attribution: "&copy; OpenStreetMap contributors &copy; CARTO"
 }).addTo(nyc_map);
 
-//map clicks 
-nyc_map.on("click", async function (e) {
+function formatRadius(m) {
+    return m < 1000 ? `${m} m` : `${m / 1000} km`;
+}
+
+//slider: resize circle live while dragging, re-search once on release
+radius_slider.addEventListener("input", function () {
+    search_radius_m = Number(radius_slider.value);
+    radius_value.textContent = formatRadius(search_radius_m);
+    if (search_zone) search_zone.setRadius(search_radius_m);
+});
+radius_slider.addEventListener("change", function () {
+    if (last_click) runSearch(last_click.lat, last_click.lng);
+});
+
+//map clicks
+nyc_map.on("click", function (e) {
     // console.log(e.latlng); //click coords
+    last_click = e.latlng;
     if (!search_zone) {
         search_zone = L.circle([e.latlng.lat, e.latlng.lng], { radius: search_radius_m })
             .addTo(nyc_map);
     } else {
         search_zone.setLatLng([e.latlng.lat, e.latlng.lng]);
     }
-    const results = await fetchSpecies(e.latlng.lat, e.latlng.lng, (search_radius_km));
+    runSearch(e.latlng.lat, e.latlng.lng);
+});
+
+async function runSearch(lat, lng) {
+    const search_radius_km = search_radius_m / 1000;
+    const results = await fetchSpecies(lat, lng, search_radius_km);
     const species = results.slice(0, 5);
-    //total observations 
+    //total observations
     const state_total = await state_total_promise;
-    const local_total = await fetchTotal(`lat=${e.latlng.lat}&lng=${e.latlng.lng}&radius=${search_radius_km}`);
+    const local_total = await fetchTotal(`lat=${lat}&lng=${lng}&radius=${search_radius_km}`);
     // console.log(state_total, local_total);
     const keep_species = results.filter(d => d.count >= min_obs);
     const ids = keep_species.map(d => d.taxon.id);
@@ -74,7 +108,7 @@ nyc_map.on("click", async function (e) {
     //render
     renderSpecies(tagged_species.slice(0, species.length), "common_list");
     renderSpecies(tagged_species.slice(species.length), "distinctive_list");
-});
+}
 
 async function fetchSpecies(lat, lng, radius_km) {
     const url = `${base_url}/species_counts?${nystate_id}&${quality_grade}&lat=${lat}&lng=${lng}&radius=${radius_km}`;

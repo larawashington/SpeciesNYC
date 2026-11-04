@@ -15,7 +15,13 @@
 </head>
 
 <body>
-  <div id="nyc_map"></div>
+  <div class="map_wrap">
+    <div id="nyc_map"></div>
+    <div class="radius_control">
+      <label for="radius_slider">Radius <span id="radius_value">500 m</span></label>
+      <input type="range" id="radius_slider" min="500" max="5000" step="250" value="500">
+    </div>
+  </div>
   <section class="panel">
     <h2>Most Observed</h2>
     <div class="species_list" id="common_list"></div>

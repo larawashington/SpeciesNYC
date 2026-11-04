@@ -21,10 +21,48 @@
     font-family: Georgia, 'Times New Roman', Times, serif;
   }
 
+  .map_wrap {
+    position: relative;
+  }
+
   #nyc_map {
     width: 100%;
     height: 60vh;
     border-bottom: 1px solid var(--rule);
+  }
+
+  /* radius slider, floating over the top-right of the map */
+  .radius_control {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 8px 12px;
+    background: var(--card);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(43, 42, 39, 0.12);
+    font-family: system-ui, sans-serif;
+    font-size: 0.8rem;
+    color: var(--ink-soft);
+  }
+
+  .radius_control label {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  #radius_value {
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  #radius_slider {
+    width: 180px;
   }
 
   .panel {
