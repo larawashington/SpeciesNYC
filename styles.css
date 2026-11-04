@@ -159,6 +159,29 @@
     color: var(--unknown-ink);
   }
 
+  .tag.pending {
+    background: var(--unknown-bg);
+    color: var(--ink-soft);
+  }
+
+  /* status + loading messages */
+  .status {
+    margin: 16px 24px 0;
+    padding: 10px 14px;
+    background: var(--introduced-bg);
+    color: var(--introduced-ink);
+    border-radius: 8px;
+    font-family: system-ui, sans-serif;
+    font-size: 0.85rem;
+  }
+
+  .loading {
+    margin: 0;
+    font-family: system-ui, sans-serif;
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+  }
+
   .tag.at_risk {
     background: transparent;
     color: var(--risk-ink);
