@@ -1,1 +1,0 @@
-const CARTO_KEY = "cb1_4s35_1_a3793d16b1aabf284fd64817";
