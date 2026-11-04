@@ -94,11 +94,6 @@
     transition: transform 0.15s ease, box-shadow 0.15s ease;
   }
 
-  .species_card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(43, 42, 39, 0.1);
-  }
-
   .species_card img {
     display: block;
     width: 100%;
