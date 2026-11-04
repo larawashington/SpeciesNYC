@@ -48,7 +48,7 @@ const min_obs = 10;
 //in-flight search, cancelled when a new one starts
 let search_controller;
 
-L.tileLayer(`https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png`, {
+L.tileLayer(`https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png?key=${CARTO_KEY}`, {
     attribution: "&copy; OpenStreetMap contributors &copy; CARTO"
 }).addTo(nyc_map);
 
