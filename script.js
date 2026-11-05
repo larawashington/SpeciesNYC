@@ -345,8 +345,29 @@ function renderSpecies(species, list_id) {
             <p>${count} observations</p>
         </div>`);
     }
-    document.getElementById(list_id).innerHTML = cards.join("");
+    const container = document.getElementById(list_id);
+    container.innerHTML = cards.join("");
+    fitNames(container);
 }
+
+//shrink long common names until they fit in 2 lines (no truncation)
+const min_name_px = 8;
+function fitNames(root = document) {
+    for (const h3 of root.querySelectorAll(".species_card h3")) {
+        h3.style.fontSize = ""; //start from the css size for this card width
+        let size = parseFloat(getComputedStyle(h3).fontSize);
+        while (size > min_name_px &&
+            (h3.scrollHeight > size * 1.2 * 2 + 1 || h3.scrollWidth > h3.clientWidth)) {
+            size -= 0.5;
+            h3.style.fontSize = `${size}px`;
+        }
+    }
+}
+let fit_frame;
+window.addEventListener("resize", function () {
+    cancelAnimationFrame(fit_frame);
+    fit_frame = requestAnimationFrame(() => fitNames());
+});
 
 //fill in tags on cards already on screen
 function applyLabels(native_set, introed_set, atrisk_set) {

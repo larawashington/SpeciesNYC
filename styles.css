@@ -72,7 +72,9 @@
     height: 100vh;
     height: 100dvh;
     padding: 20px 24px;
-    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto; /* fallback only: cards size themselves to fit */
     background: var(--paper);
     border-left: 1px solid var(--rule);
     box-shadow: -4px 0 16px rgba(43, 42, 39, 0.08);
@@ -108,12 +110,29 @@
     color: var(--ink);
   }
 
-  .panel_section + .panel_section {
-    margin-top: 20px;
+  /* the two sections stack; if the panel is short they shrink to share it */
+  .panel_lists {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(10px, 2.5vh, 20px);
+  }
+
+  .panel_lists[hidden] {
+    display: none;
+  }
+
+  .panel_section {
+    flex: 0 1 auto; /* natural height, distinctive sits right below; both shrink on short screens */
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
   }
 
   .panel h2 {
-    margin: 0 0 12px;
+    flex: none;
+    margin: 0 0 clamp(6px, 1.5vh, 12px);
     font-size: 0.95rem;
     font-weight: bold;
     letter-spacing: 0.12em;
@@ -121,24 +140,45 @@
     color: var(--ink-soft);
   }
 
+  /* one row of 5 cards that fills its section's remaining height */
   .species_list {
-    display: flex;
-    gap: 16px;
-    flex-wrap: wrap;
+    flex: 0 1 auto;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-rows: minmax(0, 1fr);
+    align-items: start; /* cards are only as tall as their content... */
+    gap: clamp(6px, 1.1vw, 16px);
   }
 
+  .species_list > .loading {
+    grid-column: 1 / -1;
+  }
+
+  /* card: text keeps its size, the photo shrinks to whatever height is left */
   .species_card {
-    width: 160px;
-    padding: 8px 8px 12px;
+    container-type: inline-size; /* text below scales with card width */
+    box-sizing: border-box;
+    min-width: 0;
+    min-height: 0;
+    max-height: 100%; /* ...but never taller than the row, so the photo shrinks instead */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding: clamp(4px, 0.6vw, 8px) clamp(4px, 0.6vw, 8px) clamp(6px, 0.8vw, 12px);
     background: var(--card);
     border: 1px solid var(--rule);
     border-radius: 10px;
-    box-shadow: 0 1px 2px rgba(43, 42, 39, 0.06);
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .species_card > * {
+    flex: none;
   }
 
   .species_card img {
     display: block;
+    flex: 0 1 auto; /* square when there's room, shorter when the panel is short */
+    min-height: 0;
     width: 100%;
     aspect-ratio: 1;
     object-fit: cover;
@@ -147,21 +187,22 @@
     /* placeholder colour if a photo is missing */
   }
 
+  /* long names shrink to fit 2 lines (see fitNames in script.js) instead of truncating */
   .species_card h3 {
-    margin: 10px 0 2px;
-    font-size: 1rem;
+    margin: clamp(4px, 5cqi, 10px) 0 2px;
+    font-size: clamp(0.7rem, 10cqi, 1rem);
     line-height: 1.2;
   }
 
   .species_card p {
     margin: 0;
-    font-size: 0.8rem;
+    font-size: clamp(0.6rem, 7.5cqi, 0.8rem);
     color: var(--ink-soft);
   }
 
   .sci_name {
     font-style: italic;
-    margin-bottom: 8px !important;
+    margin-bottom: clamp(3px, 4cqi, 8px) !important;
   }
 
   /* label pills */
@@ -169,15 +210,15 @@
     display: flex;
     flex-wrap: wrap;
     gap: 4px;
-    margin-bottom: 6px;
+    margin-bottom: clamp(3px, 3cqi, 6px);
   }
 
   .tag {
     display: inline-block;
-    padding: 3px 8px;
+    padding: 3px clamp(5px, 5cqi, 8px);
     border-radius: 999px;
     font-family: system-ui, sans-serif;
-    font-size: 0.7rem;
+    font-size: clamp(0.55rem, 6.5cqi, 0.7rem);
     line-height: 1.2;
     text-transform: capitalize;
   }
@@ -228,4 +269,32 @@
     color: var(--risk-ink);
     border: 1px solid var(--risk-ink);
     padding: 2px 7px;
+  }
+  /* phones: panel becomes a bottom sheet, map circle shifts into the top area */
+  @media (max-width: 700px) {
+    .panel {
+      top: auto;
+      bottom: 0;
+      width: 100vw;
+      height: 65vh;
+      height: 65dvh;
+      padding: 14px 10px 10px;
+      border-left: none;
+      border-top: 1px solid var(--rule);
+      box-shadow: 0 -4px 16px rgba(43, 42, 39, 0.08);
+      transform: translateY(100%);
+    }
+
+    .panel_close {
+      top: 4px;
+      right: 6px;
+    }
+
+    .panel h2 {
+      font-size: 0.8rem;
+    }
+
+    .species_card {
+      border-radius: 6px;
+    }
   }
