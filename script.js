@@ -22,6 +22,7 @@ const radius_slider = document.getElementById("radius_slider");
 const radius_value = document.getElementById("radius_value");
 const status_msg = document.getElementById("status");
 const panel = document.getElementById("panel");
+const about_panel = document.getElementById("about_panel");
 const panel_lists = document.getElementById("panel_lists");
 //iNaturalist api consts
 // https://api.inaturalist.org/v1/observations/species_counts?place_id=48&quality_grade=research&lat=40.78&lng=-73.96&radius=0.5
@@ -59,7 +60,7 @@ nyc_map.attributionControl.setPosition("bottomleft"); //keep credits visible bes
 function openPanel(target = panel) {
     target.classList.add("open");
 }
-document.getElementById("about_open").addEventListener("click", () => openPanel(document.getElementById("about_panel")));
+document.getElementById("about_open").addEventListener("click", () => openPanel(about_panel));
 for (const close_btn of document.querySelectorAll(".panel_close")) {
     close_btn.addEventListener("click", () => close_btn.closest(".panel").classList.remove("open"));
 }

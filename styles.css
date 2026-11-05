@@ -117,7 +117,7 @@
     padding: clamp(22px, 4vh, 40px) clamp(24px, 2.6vw, 44px);
     display: flex;
     flex-direction: column;
-    overflow-y: auto; /* fallback only: cards size themselves to fit */
+    overflow: hidden; /* frame + close stay put; .panel_lists / .about_text scroll instead */
     /* paper with slightly darker, aged edges */
     background:
       radial-gradient(ellipse at center, var(--parchment) 55%, var(--parchment-lo) 130%);
@@ -154,6 +154,23 @@
     margin-bottom: clamp(6px, 1.5vh, 14px); /* byline sits close under it */
   }
 
+  /* panel buttons: close (×) + info (i) */
+  .panel_close,
+  .info_button {
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: var(--ink-soft);
+    font-family: var(--text);
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .panel_close:hover,
+  .info_button:hover {
+    color: var(--ink);
+  }
+
   .panel_close {
     position: absolute;
     top: 16px;
@@ -161,24 +178,19 @@
     z-index: 1;
     width: 32px;
     height: 32px;
-    padding: 0;
-    border: none;
-    background: transparent;
-    color: var(--ink-soft);
-    font-family: var(--text);
     font-size: 1.6rem;
-    line-height: 1;
-    cursor: pointer;
   }
 
-  .panel_close:hover {
-    color: var(--ink);
+  /* scroll body of each panel (fallback only for the cards: they size themselves to fit) */
+  .panel_lists,
+  .about_text {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
   }
 
   /* the two sections stack; if the panel is short they shrink to share it */
   .panel_lists {
-    flex: 1;
-    min-height: 0;
     display: flex;
     flex-direction: column;
     gap: clamp(14px, 5vh, 56px);
@@ -415,35 +427,17 @@
     flex: none;
     width: 24px;
     height: 24px;
-    padding: 0;
     border: 1px solid var(--ink-faint);
     border-radius: 50%;
-    background: transparent;
-    color: var(--ink-soft);
-    font-family: var(--text);
     font-size: 0.95rem;
     font-style: italic;
-    line-height: 1;
-    cursor: pointer;
   }
 
   .info_button:hover {
-    color: var(--ink);
     border-color: var(--ink-soft);
   }
 
   /* ───────── about panel text ───────── */
-  /* the frame stays put; only the text scrolls inside it */
-  .panel_about {
-    overflow: hidden;
-  }
-
-  .about_text {
-    flex: 1;
-    min-height: 0;
-    overflow-y: auto;
-  }
-
   .about_text h2 {
     margin: 1.1em 0 0.25em;
     font-family: var(--display);
@@ -451,10 +445,6 @@
     font-weight: normal;
     letter-spacing: 0.08em;
     color: var(--ink);
-  }
-
-  .about_text h2:first-child {
-    margin-top: 0;
   }
 
   .about_text p {
@@ -482,7 +472,7 @@
     flex-wrap: wrap; /* second bracket drops to its own line in a narrow panel */
     justify-content: center;
     align-items: center;
-    gap: 0 4px;
+    gap: 0 10px;
     margin: 0.6em 0 0.9em;
     font-style: italic;
     color: var(--ink);
@@ -496,14 +486,12 @@
 
   .formula .bracket {
     font-size: 2.6em;
-    font-weight: 400;
     line-height: 1;
     font-style: normal;
     color: var(--ink-faint);
   }
 
   .formula .op {
-    margin: 0 6px;
     font-style: normal;
   }
 
@@ -511,16 +499,13 @@
     display: inline-flex;
     flex-direction: column;
     text-align: center;
+    gap: 2px;
     line-height: 1.3;
   }
 
   .frac span:first-child {
     border-bottom: 1px solid var(--ink-soft); /* fraction bar */
-    padding-bottom: 2px;
-  }
-
-  .frac span:last-child {
-    padding-top: 2px;
+    padding-bottom: 2px; /* space above the bar; .frac gap spaces below it */
   }
 
   /* hanging indent, like a printed reference list */
@@ -595,7 +580,8 @@
       gap: 12px;
     }
 
-    .panel_section:first-child h1 {
+    .panel_section:first-child h1,
+    .panel_about h1 {
       padding-right: 30px; /* clear the close button */
     }
 
