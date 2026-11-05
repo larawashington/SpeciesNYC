@@ -1,7 +1,7 @@
 //map: zoom out as far as full NY + NJ, half-step scroll zoom
 const ny_nj_bounds = L.latLngBounds([[38.75, -79.8], [45.05, -71.75]]);
 const nyc_map = L.map("nyc_map", {
-    maxBounds: ny_nj_bounds.pad(0.1),
+    maxBounds: ny_nj_bounds.pad(0.5), //extra room so edge points can still shift beside the panel
     zoomSnap: 0.5,
     zoomDelta: 0.5,
     wheelPxPerZoomLevel: 120
@@ -64,6 +64,29 @@ function closePanel() {
 }
 document.getElementById("panel_close").addEventListener("click", closePanel);
 
+//the part of the map the panel doesn't cover (desktop: left 40%; phones: top area)
+const phone_layout = window.matchMedia("(max-width: 700px)");
+function visibleMapArea() {
+    const size = nyc_map.getSize();
+    return phone_layout.matches
+        ? { left: 0, top: 0, right: size.x, bottom: size.y - panel.offsetHeight }
+        : { left: 0, top: 0, right: size.x - panel.offsetWidth, bottom: size.y };
+}
+
+//center the search circle in the visible area; zoom out only if it doesn't fit
+function focusSearchArea() {
+    const size = nyc_map.getSize();
+    const area = visibleMapArea();
+    const margin = 24;
+    const covered = L.point(size.x - area.right + area.left + 2 * margin, size.y - area.bottom + area.top + 2 * margin);
+    const fit_zoom = nyc_map.getBoundsZoom(search_zone.getBounds(), false, covered);
+    const zoom = Math.min(nyc_map.getZoom(), fit_zoom);
+    //offset from the map's center to the visible area's center, in pixels
+    const offset = L.point((area.left + area.right - size.x) / 2, (area.top + area.bottom - size.y) / 2);
+    const center_px = nyc_map.project(search_zone.getLatLng(), zoom).subtract(offset);
+    nyc_map.setView(nyc_map.unproject(center_px, zoom), zoom, { animate: true });
+}
+
 function formatRadius(m) {
     return m < 1000 ? `${m} m` : `${m / 1000} km`;
 }
@@ -75,7 +98,10 @@ radius_slider.addEventListener("input", function () {
     if (search_zone) search_zone.setRadius(search_radius_m);
 });
 radius_slider.addEventListener("change", function () {
-    if (last_click) runSearch(last_click.lat, last_click.lng);
+    if (!last_click) return;
+    openPanel();
+    focusSearchArea();
+    runSearch(last_click.lat, last_click.lng);
 });
 
 //map clicks
@@ -88,6 +114,8 @@ nyc_map.on("click", function (e) {
     } else {
         search_zone.setLatLng([e.latlng.lat, e.latlng.lng]);
     }
+    openPanel();
+    focusSearchArea();
     runSearch(e.latlng.lat, e.latlng.lng);
 });
 
