@@ -109,8 +109,10 @@ nyc_map.on("click", function (e) {
     // console.log(e.latlng); //click coords
     last_click = e.latlng;
     if (!search_zone) {
-        search_zone = L.circle([e.latlng.lat, e.latlng.lng], { radius: search_radius_m })
-            .addTo(nyc_map);
+        const ink = getComputedStyle(document.documentElement).getPropertyValue("--native-ink").trim();
+        search_zone = L.circle([e.latlng.lat, e.latlng.lng], {
+            radius: search_radius_m, color: ink, weight: 1.5, dashArray: "4 4", fillOpacity: 0.12
+        }).addTo(nyc_map);
     } else {
         search_zone.setLatLng([e.latlng.lat, e.latlng.lng]);
     }
@@ -339,10 +341,14 @@ function renderSpecies(species, list_id) {
         cards.push(`
         <div class="species_card" data-taxon="${d.taxon.id}">
             <img src="${photo_med}" alt="${common_name}" title="${photo_cred}" loading="lazy">
-            <h3>${common_name}</h3>
-            <p class="sci_name">${scientific_name}</p>
-            <div class="tags"><span class="tag pending">…</span></div>
-            <p>${count} observations</p>
+            <div class="card_name">
+                <h3>${common_name}</h3>
+                <p class="sci_name">${scientific_name}</p>
+            </div>
+            <div class="card_foot">
+                <div class="tags"><span class="tag pending">…</span></div>
+                <p class="obs_count">${count.toLocaleString()} observations</p>
+            </div>
         </div>`);
     }
     const container = document.getElementById(list_id);
@@ -350,19 +356,26 @@ function renderSpecies(species, list_id) {
     fitNames(container);
 }
 
-//shrink long common names until they fit in 2 lines (no truncation)
+//shrink long text until it fits (no truncation): common name 2 lines, scientific name + count 1
 const min_name_px = 8;
-function fitNames(root = document) {
-    for (const h3 of root.querySelectorAll(".species_card h3")) {
-        h3.style.fontSize = ""; //start from the css size for this card width
-        let size = parseFloat(getComputedStyle(h3).fontSize);
-        while (size > min_name_px &&
-            (h3.scrollHeight > size * 1.2 * 2 + 1 || h3.scrollWidth > h3.clientWidth)) {
-            size -= 0.5;
-            h3.style.fontSize = `${size}px`;
-        }
+function fitText(el, max_lines) {
+    el.style.fontSize = ""; //start from the css size for this card width
+    const style = getComputedStyle(el);
+    let size = parseFloat(style.fontSize);
+    const line_ratio = parseFloat(style.lineHeight) / size || 1.2; //"normal" -> 1.2
+    while (size > min_name_px &&
+        (el.scrollHeight > size * line_ratio * max_lines + 1 || el.scrollWidth > el.clientWidth)) {
+        size -= 0.5;
+        el.style.fontSize = `${size}px`;
     }
 }
+const fit_rules = [["h3", 2], [".sci_name", 1], [".obs_count", 1]]; //[selector, max lines]
+function fitNames(root = document) {
+    for (const [selector, max_lines] of fit_rules) {
+        for (const el of root.querySelectorAll(`.species_card ${selector}`)) fitText(el, max_lines);
+    }
+}
+document.fonts.ready.then(() => fitNames()); //re-measure once the web fonts arrive
 let fit_frame;
 window.addEventListener("resize", function () {
     cancelAnimationFrame(fit_frame);

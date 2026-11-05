@@ -1,30 +1,69 @@
+  /* ───────── palette + type: antique botanical plate ───────── */
   :root {
-    --paper: #f6f3ec;
-    --card: #ffffff;
-    --ink: #2b2a27;
-    --ink-soft: #6b675f;
-    --rule: #e4dfd4;
+    --parchment: #efe5cf;      /* panel paper */
+    --parchment-hi: #f7f0de;   /* card paper, a shade lighter */
+    --parchment-lo: #e4d6b6;   /* aged edges */
+    --ink: #2e2419;            /* brown-black printing ink */
+    --ink-soft: #5e5040;
+    --ink-faint: #8f7f66;      /* hairline rules */
 
-    --native-bg: #e3ecd9;
-    --native-ink: #3f5e2a;
-    --introduced-bg: #f5e6cc;
-    --introduced-ink: #8a5a12;
-    --unknown-bg: #ebe8e2;
-    --unknown-ink: #5c5a55;
-    --risk-ink: #a63d40;
+    --native-ink: #4f6233;     /* botanical green */
+    --introduced-ink: #8a5a1c; /* ochre */
+    --unknown-ink: #7a6d5a;
+    --risk-ink: #8e2f22;       /* oxblood */
+
+    /* printed double rule: hairline border + inset inner hairline */
+    --frame: inset 0 0 0 3px var(--parchment-hi), inset 0 0 0 4px var(--parchment-lo);
+
+    --display: "IM Fell English SC", "IM Fell English", Georgia, serif;
+    --text: "EB Garamond", Garamond, Georgia, serif;
   }
 
   body {
     margin: 0;
-    background: var(--paper);
+    background: var(--parchment);
     color: var(--ink);
-    font-family: Georgia, 'Times New Roman', Times, serif;
+    font-family: var(--text);
   }
 
-  /* full-screen map */
+  /* ───────── map ───────── */
   #nyc_map {
     position: fixed;
     inset: 0;
+    background: var(--parchment-lo);
+  }
+
+  /* warm the basemap so it sits on the same paper as the panel */
+  #nyc_map .leaflet-tile-pane {
+    filter: sepia(0.2) saturate(0.85) brightness(0.98);
+  }
+
+  /* zoom buttons + credits in the same ink-and-paper style */
+  .leaflet-bar,
+  .leaflet-bar a {
+    border-radius: 0 !important;
+  }
+
+  .leaflet-bar {
+    border: 1px solid var(--ink-faint) !important;
+    box-shadow: none !important;
+  }
+
+  .leaflet-bar a {
+    background: var(--parchment-hi);
+    color: var(--ink);
+    font-family: var(--text);
+    border-bottom-color: var(--ink-faint);
+  }
+
+  .leaflet-bar a:hover {
+    background: var(--parchment);
+  }
+
+  .leaflet-control-attribution {
+    background: rgba(247, 240, 222, 0.85) !important;
+    font-family: var(--text);
+    color: var(--ink-soft);
   }
 
   /* radius slider, floating top-left next to the zoom buttons */
@@ -35,14 +74,13 @@
     z-index: 1000;
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    padding: 8px 12px;
-    background: var(--card);
-    border: 1px solid var(--rule);
-    border-radius: 8px;
-    box-shadow: 0 1px 4px rgba(43, 42, 39, 0.12);
-    font-family: system-ui, sans-serif;
-    font-size: 0.8rem;
+    gap: 6px;
+    padding: 8px 14px 10px;
+    background: var(--parchment-hi);
+    border: 1px solid var(--ink-faint);
+    box-shadow: var(--frame);
+    font-family: var(--text);
+    font-size: 0.9rem;
     color: var(--ink-soft);
   }
 
@@ -50,18 +88,23 @@
     display: flex;
     justify-content: space-between;
     gap: 12px;
+    font-family: var(--display);
+    letter-spacing: 0.08em;
   }
 
   #radius_value {
     color: var(--ink);
-    font-weight: 600;
+    font-family: var(--text);
+    font-style: italic;
+    letter-spacing: 0;
   }
 
   #radius_slider {
     width: 180px;
+    accent-color: var(--native-ink);
   }
 
-  /* species panel: off-screen right until body.panel_open */
+  /* ───────── species panel: off-screen right until body.panel_open ───────── */
   .panel {
     position: fixed;
     top: 0;
@@ -71,16 +114,27 @@
     width: 60vw;
     height: 100vh;
     height: 100dvh;
-    padding: 20px 24px;
+    padding: clamp(22px, 4vh, 40px) clamp(24px, 2.6vw, 44px);
     display: flex;
     flex-direction: column;
     overflow-y: auto; /* fallback only: cards size themselves to fit */
-    background: var(--paper);
-    border-left: 1px solid var(--rule);
-    box-shadow: -4px 0 16px rgba(43, 42, 39, 0.08);
+    /* paper with slightly darker, aged edges */
+    background:
+      radial-gradient(ellipse at center, var(--parchment) 55%, var(--parchment-lo) 130%);
+    border-left: 1px solid var(--ink-faint);
+    box-shadow: -6px 0 18px rgba(46, 36, 25, 0.12);
     transform: translateX(100%);
     visibility: hidden;
     transition: transform 0.35s ease, visibility 0s linear 0.35s;
+  }
+
+  /* printed double-rule frame around the whole plate */
+  .panel::before {
+    content: "";
+    position: absolute;
+    inset: 10px;
+    border: 3px double var(--ink-faint);
+    pointer-events: none;
   }
 
   body.panel_open .panel {
@@ -91,22 +145,22 @@
 
   .panel_close {
     position: absolute;
-    top: 10px;
-    right: 12px;
+    top: 16px;
+    right: 18px;
+    z-index: 1;
     width: 32px;
     height: 32px;
     padding: 0;
     border: none;
-    border-radius: 50%;
     background: transparent;
     color: var(--ink-soft);
-    font-size: 1.5rem;
+    font-family: var(--text);
+    font-size: 1.6rem;
     line-height: 1;
     cursor: pointer;
   }
 
   .panel_close:hover {
-    background: var(--unknown-bg);
     color: var(--ink);
   }
 
@@ -116,7 +170,7 @@
     min-height: 0;
     display: flex;
     flex-direction: column;
-    gap: clamp(10px, 2.5vh, 20px);
+    gap: clamp(14px, 5vh, 56px);
   }
 
   .panel_lists[hidden] {
@@ -130,147 +184,220 @@
     flex-direction: column;
   }
 
-  .panel h2 {
+  /* section title: centred small caps between hairline rules, like a plate heading */
+  .panel h1 {
     flex: none;
-    margin: 0 0 clamp(6px, 1.5vh, 12px);
-    font-size: 0.95rem;
-    font-weight: bold;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--ink-soft);
+    display: flex;
+    align-items: center;
+    gap: 0.8em;
+    margin: 0 0 clamp(10px, 3.2vh, 30px);
+    font-family: var(--display);
+    font-size: clamp(1.35rem, 2.3vw, 2.1rem);
+    font-weight: normal;
+    line-height: 1.1;
+    letter-spacing: 0.14em;
+    color: var(--ink);
+    white-space: nowrap;
   }
 
-  /* one row of 5 cards that fills its section's remaining height */
+  .panel h1::before,
+  .panel h1::after {
+    content: "";
+    flex: 1;
+    border-top: 1px solid var(--ink-faint);
+  }
+
+  /* one row of 5 cards */
   .species_list {
     flex: 0 1 auto;
     min-height: 0;
     display: grid;
     grid-template-columns: repeat(5, minmax(0, 1fr));
     grid-template-rows: minmax(0, 1fr);
-    align-items: start; /* cards are only as tall as their content... */
-    gap: clamp(6px, 1.1vw, 16px);
+    align-items: stretch;
+    gap: clamp(6px, 0.8vw, 12px);
   }
 
   .species_list > .loading {
     grid-column: 1 / -1;
   }
 
-  /* card: text keeps its size, the photo shrinks to whatever height is left */
+  /* ───────── card: a miniature plate ───────── */
   .species_card {
     container-type: inline-size; /* text below scales with card width */
+    --name-size: clamp(0.85rem, 11.5cqi, 1.25rem);
+    --name-lh: 1.12;
+    --text-size: clamp(0.72rem, 9cqi, 1rem);
+    --sci-lh: 1.25;
     box-sizing: border-box;
     min-width: 0;
     min-height: 0;
-    max-height: 100%; /* ...but never taller than the row, so the photo shrinks instead */
+    max-height: 100%; /* never taller than the row, so the image shrinks instead */
     display: flex;
     flex-direction: column;
+    align-items: center;
     overflow: hidden;
-    padding: clamp(4px, 0.6vw, 8px) clamp(4px, 0.6vw, 8px) clamp(6px, 0.8vw, 12px);
-    background: var(--card);
-    border: 1px solid var(--rule);
-    border-radius: 10px;
+    padding: clamp(8px, 7cqi, 14px) clamp(6px, 6cqi, 12px) clamp(8px, 7cqi, 14px);
+    text-align: center;
+    background: var(--parchment-hi);
+    /* double frame: outer hairline + inner hairline */
+    border: 1px solid var(--ink-faint);
+    box-shadow: var(--frame);
   }
 
   .species_card > * {
     flex: none;
   }
 
+  /* specimen in an oval frame */
   .species_card img {
     display: block;
-    flex: 0 1 auto; /* square when there's room, shorter when the panel is short */
+    flex: 0 1 auto; /* full size when there's room, shorter when the panel is short */
+    box-sizing: border-box;
     min-height: 0;
     width: 100%;
-    aspect-ratio: 1;
+    aspect-ratio: 6 / 5; /* landscape oval: most iNat photos are landscape, so less is cut off at the sides */
     object-fit: cover;
-    border-radius: 6px;
-    background: var(--unknown-bg);
-    /* placeholder colour if a photo is missing */
+    border-radius: 50%;
+    border: 1px solid var(--ink-faint);
+    padding: 3px;
+    background: var(--parchment-hi);
+    filter: sepia(0.12) saturate(0.92);
   }
 
-  /* long names shrink to fit 2 lines (see fitNames in script.js) instead of truncating */
+  /*
+    fixed-height layout:
+    name + scientific name stay together right under the image (a 1-line name
+    doesn't leave a gap between them); the leftover space goes above the footer,
+    so tags + counts line up along the bottom of every card in the row.
+    long names shrink to fit 2 lines (fitNames in script.js) instead of truncating.
+  */
+  /* fixed slot: always room for a 2-line name + 1-line scientific name, so every
+     card is the same height; content sits at the top of the slot */
+  .card_name {
+    width: 100%;
+    margin-top: clamp(6px, 6cqi, 12px);
+    min-height: calc(2 * var(--name-lh) * var(--name-size) + var(--sci-lh) * var(--text-size) + 2px);
+  }
+
   .species_card h3 {
-    margin: clamp(4px, 5cqi, 10px) 0 2px;
-    font-size: clamp(0.7rem, 10cqi, 1rem);
-    line-height: 1.2;
+    margin: 0;
+    max-width: 100%;
+    font-family: var(--display); /* same face as the section titles */
+    font-size: var(--name-size);
+    font-weight: normal;
+    text-transform: capitalize; /* iNat names vary in case; caps + small caps like a plate title */
+    letter-spacing: 0.04em;
+    line-height: var(--name-lh);
+    color: var(--ink);
   }
 
   .species_card p {
     margin: 0;
-    font-size: clamp(0.6rem, 7.5cqi, 0.8rem);
+    font-size: var(--text-size);
     color: var(--ink-soft);
   }
 
   .sci_name {
+    margin-top: 2px !important;
     font-style: italic;
-    margin-bottom: clamp(3px, 4cqi, 8px) !important;
+    line-height: var(--sci-lh);
   }
 
-  /* label pills */
+  .card_foot {
+    width: 100%;
+    margin-top: auto; /* pushes the footer to the bottom; any spare space sits above it */
+    padding-top: clamp(6px, 6cqi, 10px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(3px, 3cqi, 6px);
+  }
+
+  /* fleuron divider above the footer */
+  .card_foot::before {
+    content: "❦";
+    color: var(--ink-faint);
+    font-size: clamp(0.6rem, 7cqi, 0.85rem);
+    line-height: 1;
+  }
+
+  /* one-line text: full card width so fitNames can detect overflow, then shrinks to fit */
+  .sci_name,
+  .obs_count {
+    width: 100%;
+    white-space: nowrap;
+  }
+
+  .obs_count {
+    font-style: italic;
+  }
+
+  /* labels: printed small-caps words in coloured ink, not pills */
   .tags {
     display: flex;
     flex-wrap: wrap;
-    gap: 4px;
-    margin-bottom: clamp(3px, 3cqi, 6px);
+    justify-content: center;
+    gap: 2px 8px;
   }
 
   .tag {
-    display: inline-block;
-    padding: 3px clamp(5px, 5cqi, 8px);
-    border-radius: 999px;
-    font-family: system-ui, sans-serif;
-    font-size: clamp(0.55rem, 6.5cqi, 0.7rem);
+    font-family: var(--display);
+    font-size: clamp(0.68rem, 8.5cqi, 0.95rem);
+    letter-spacing: 0.1em;
     line-height: 1.2;
-    text-transform: capitalize;
+    text-transform: lowercase; /* lowercase + small-caps face = even small caps */
   }
 
   .tag.native {
-    background: var(--native-bg);
     color: var(--native-ink);
   }
 
   .tag.introduced {
-    background: var(--introduced-bg);
     color: var(--introduced-ink);
   }
 
-  .tag.unknown {
-    background: var(--unknown-bg);
+  .tag.unknown,
+  .tag.pending {
     color: var(--unknown-ink);
   }
 
-  .tag.pending {
-    background: var(--unknown-bg);
-    color: var(--ink-soft);
+  .tag.at_risk {
+    color: var(--risk-ink);
+  }
+
+  .tag.at_risk::before {
+    content: "✛ ";
+    color: var(--ink-faint);
+
   }
 
   /* status (guardrail/error) message: replaces the lists, centred at the top of the panel */
   .status {
     box-sizing: border-box;
-    max-width: 36em;
-    margin: 28px auto 0;
-    padding: 10px 14px;
+    max-width: 34em;
+    margin: clamp(28px, 6vh, 56px) auto 0;
+    padding: 14px 22px;
     text-align: center;
-    background: var(--introduced-bg);
-    color: var(--introduced-ink);
-    border-radius: 8px;
-    font-family: system-ui, sans-serif;
-    font-size: 0.85rem;
+    background: var(--parchment-hi);
+    border: 1px solid var(--ink-faint);
+    box-shadow: var(--frame);
+    color: var(--ink-soft);
+    font-family: var(--text);
+    font-size: 1.05rem;
+    font-style: italic;
   }
 
   .loading {
     margin: 0;
-    font-family: system-ui, sans-serif;
-    font-size: 0.85rem;
+    font-family: var(--text);
+    font-size: 1rem;
+    font-style: italic;
+    text-align: center;
     color: var(--ink-soft);
   }
 
-  .tag.at_risk {
-    background: transparent;
-    color: var(--risk-ink);
-    border: 1px solid var(--risk-ink);
-    padding: 2px 7px;
-  }
-  /* phones: panel becomes a bottom sheet, map circle shifts into the top area */
+  /* ───────── phones: panel becomes a bottom sheet ───────── */
   @media (max-width: 700px) {
     .panel {
       top: auto;
@@ -278,23 +405,51 @@
       width: 100vw;
       height: 65vh;
       height: 65dvh;
-      padding: 14px 10px 10px;
+      padding: 18px 14px 14px;
       border-left: none;
-      border-top: 1px solid var(--rule);
-      box-shadow: 0 -4px 16px rgba(43, 42, 39, 0.08);
+      border-top: 1px solid var(--ink-faint);
+      box-shadow: 0 -6px 18px rgba(46, 36, 25, 0.12);
       transform: translateY(100%);
     }
 
-    .panel_close {
-      top: 4px;
-      right: 6px;
+    .panel::before {
+      inset: 5px;
     }
 
-    .panel h2 {
-      font-size: 0.8rem;
+    .panel_close {
+      top: 8px;
+      right: 10px;
+    }
+
+    .panel h1 {
+      font-size: 1.05rem;
+      letter-spacing: 0.1em;
+      margin-bottom: 8px;
+    }
+
+    .panel_lists {
+      gap: 12px;
+    }
+
+    .panel_section:first-child h1 {
+      padding-right: 30px; /* clear the close button */
+    }
+
+    .species_list {
+      gap: 4px;
     }
 
     .species_card {
-      border-radius: 6px;
+      padding: 6px 3px;
+      box-shadow: none;
+    }
+
+    .species_card img {
+      width: 96%;
+      padding: 1px;
+    }
+
+    .card_foot::before {
+      display: none;
     }
   }
