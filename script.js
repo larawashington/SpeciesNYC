@@ -21,6 +21,8 @@ let search_radius_m = 500;
 const radius_slider = document.getElementById("radius_slider");
 const radius_value = document.getElementById("radius_value");
 const status_msg = document.getElementById("status");
+const panel = document.getElementById("panel");
+const panel_lists = document.getElementById("panel_lists");
 //iNaturalist api consts
 // https://api.inaturalist.org/v1/observations/species_counts?place_id=48&quality_grade=research&lat=40.78&lng=-73.96&radius=0.5
 const base_url = "https://api.inaturalist.org/v1/observations";
@@ -51,6 +53,16 @@ let search_controller;
 L.tileLayer(`https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png?key=${CARTO_KEY}`, {
     attribution: "&copy; OpenStreetMap contributors &copy; CARTO"
 }).addTo(nyc_map);
+nyc_map.attributionControl.setPosition("bottomleft"); //keep credits visible beside the panel
+
+//panel open/close
+function openPanel() {
+    document.body.classList.add("panel_open");
+}
+function closePanel() {
+    document.body.classList.remove("panel_open");
+}
+document.getElementById("panel_close").addEventListener("click", closePanel);
 
 function formatRadius(m) {
     return m < 1000 ? `${m} m` : `${m / 1000} km`;
@@ -87,6 +99,7 @@ async function runSearch(lat, lng) {
 
     const search_radius_km = search_radius_m / 1000;
     const local_params = `lat=${lat}&lng=${lng}&radius=${search_radius_km}`;
+    openPanel(); //slides in immediately with loading text
     showStatus("");
     showLoading("common_list");
     showLoading("distinctive_list");
@@ -117,7 +130,7 @@ async function runSearch(lat, lng) {
         if (results.length === 0 || local_total < min_obs) {
             clearList("common_list");
             clearList("distinctive_list");
-            showStatus(`No observations here — this may be water. Try clicking on land or widening the radius.`);
+            showStatus(`No observations here. Try clicking on land or widening the radius.`);
             return;
         }
 
@@ -271,13 +284,15 @@ function pointInRing(x, y, ring) {
 }
 
 //rendering
+//a status message (guardrail/error) replaces the lists: panel shows only the message
 function showStatus(message) {
     status_msg.textContent = message;
     status_msg.hidden = message === "";
+    panel_lists.hidden = message !== "";
 }
 
 function showLoading(list_id) {
-    document.getElementById(list_id).innerHTML = `<p class="loading">Loading…</p>`;
+    document.getElementById(list_id).innerHTML = `<p class="loading">Loading species…</p>`;
 }
 
 function clearList(list_id) {

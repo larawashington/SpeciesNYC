@@ -21,21 +21,17 @@
     font-family: Georgia, 'Times New Roman', Times, serif;
   }
 
-  .map_wrap {
-    position: relative;
-  }
-
+  /* full-screen map */
   #nyc_map {
-    width: 100%;
-    height: 60vh;
-    border-bottom: 1px solid var(--rule);
+    position: fixed;
+    inset: 0;
   }
 
-  /* radius slider, floating over the top-right of the map */
+  /* radius slider, floating top-left next to the zoom buttons */
   .radius_control {
-    position: absolute;
-    top: 12px;
-    right: 12px;
+    position: fixed;
+    top: 10px;
+    left: 56px;
     z-index: 1000;
     display: flex;
     flex-direction: column;
@@ -65,8 +61,55 @@
     width: 180px;
   }
 
+  /* species panel: off-screen right until body.panel_open */
   .panel {
-    padding: 20px 24px 8px;
+    position: fixed;
+    top: 0;
+    right: 0;
+    z-index: 1100;
+    box-sizing: border-box;
+    width: 60vw;
+    height: 100vh;
+    height: 100dvh;
+    padding: 20px 24px;
+    overflow-y: auto;
+    background: var(--paper);
+    border-left: 1px solid var(--rule);
+    box-shadow: -4px 0 16px rgba(43, 42, 39, 0.08);
+    transform: translateX(100%);
+    visibility: hidden;
+    transition: transform 0.35s ease, visibility 0s linear 0.35s;
+  }
+
+  body.panel_open .panel {
+    transform: none;
+    visibility: visible;
+    transition: transform 0.35s ease;
+  }
+
+  .panel_close {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--ink-soft);
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .panel_close:hover {
+    background: var(--unknown-bg);
+    color: var(--ink);
+  }
+
+  .panel_section + .panel_section {
+    margin-top: 20px;
   }
 
   .panel h2 {
@@ -159,10 +202,13 @@
     color: var(--ink-soft);
   }
 
-  /* status + loading messages */
+  /* status (guardrail/error) message: replaces the lists, centred at the top of the panel */
   .status {
-    margin: 16px 24px 0;
+    box-sizing: border-box;
+    max-width: 36em;
+    margin: 28px auto 0;
     padding: 10px 14px;
+    text-align: center;
     background: var(--introduced-bg);
     color: var(--introduced-ink);
     border-radius: 8px;
