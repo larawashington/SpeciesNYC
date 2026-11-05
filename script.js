@@ -55,14 +55,14 @@ L.tileLayer(`https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png?key=
 }).addTo(nyc_map);
 nyc_map.attributionControl.setPosition("bottomleft"); //keep credits visible beside the panel
 
-//panel open/close
-function openPanel() {
-    document.body.classList.add("panel_open");
+//panels (species + about) share one slide-in: class "open" on the panel
+function openPanel(target = panel) {
+    target.classList.add("open");
 }
-function closePanel() {
-    document.body.classList.remove("panel_open");
+document.getElementById("about_open").addEventListener("click", () => openPanel(document.getElementById("about_panel")));
+for (const close_btn of document.querySelectorAll(".panel_close")) {
+    close_btn.addEventListener("click", () => close_btn.closest(".panel").classList.remove("open"));
 }
-document.getElementById("panel_close").addEventListener("click", closePanel);
 
 //the part of the map the panel doesn't cover (desktop: left 40%; phones: top area)
 const phone_layout = window.matchMedia("(max-width: 700px)");

@@ -26,7 +26,7 @@
 
   <!-- species panel: hidden until the first click, slides in from the right -->
   <aside class="panel" id="panel">
-    <button class="panel_close" id="panel_close" type="button" aria-label="Close panel">&times;</button>
+    <button class="panel_close" type="button" aria-label="Close panel">&times;</button>
     <p class="status" id="status" hidden></p>
     <div class="panel_lists" id="panel_lists">
       <section class="panel_section">
@@ -37,6 +37,40 @@
         <h1>Most Distinctive</h1>
         <div class="species_list" id="distinctive_list"></div>
       </section>
+    </div>
+    <footer class="panel_foot">
+      <p>Species data: <a href="https://www.inaturalist.org" target="_blank" rel="noopener">iNaturalist</a> research-grade observations · photos © their observers.</p>
+      <button class="info_button" id="about_open" type="button" aria-label="About this project">i</button>
+    </footer>
+  </aside>
+
+  <!-- about panel: same slide-in, narrower, opens over the species panel -->
+  <aside class="panel panel_about" id="about_panel">
+    <button class="panel_close" type="button" aria-label="Close about panel">&times;</button>
+    <h1>About this project</h1>
+    <div class="about_text">
+      <p class="byline">Created by Lara Washington</p>
+      <p class="lede">A <a href="https://doi.org/10.63744/4pg836gkjaeb" target="_blank" rel="noopener">generous interface</a> for exploring species occurrence data in New York City via iNaturalist’s API, inspired by <a href="https://www.ala.org.au/lens/" target="_blank" rel="noopener">ALA Lens</a> and <a href="https://doi.org/10.1002/pan3.70384" target="_blank" rel="noopener"><i>Designing for biodiversity data in place</i></a>.</p>
+
+      <h2>Most Observed</h2>
+      <p>Species with the most research-grade observations inside the circle.</p>
+
+      <h2>Most Distinctive</h2>
+      <p>Locally distinctive species, scored by comparing each species’ observations inside the circle with its observations state-wide (New York or New Jersey):</p>
+      <div class="formula" role="math" aria-label="score equals species count over local total, divided by state-wide species count over state total">
+        <span class="frac_group"><span class="bracket">(</span><span class="frac"><span>species count</span><span>local total</span></span><span class="bracket">)</span></span>
+        <span class="op">÷</span>
+        <span class="frac_group"><span class="bracket">(</span><span class="frac"><span>state-wide species count</span><span>state total</span></span><span class="bracket">)</span></span>
+      </div>
+      <p>Only species with at least 10 observations inside the circle are scored.</p>
+
+      <h2>Labels</h2>
+      <p>Native, introduced and at-risk labels based on iNaturalist's listings by state.</p>
+
+      <h2>Citations</h2>
+      <p class="cite">Whitelaw, M. (2015). Generous interfaces for digital cultural collections. <i>Digital Humanities Quarterly</i>, 9(1). <a href="https://doi.org/10.63744/4pg836gkjaeb" target="_blank" rel="noopener">doi.org/10.63744/4pg836gkjaeb</a></p>
+      <p class="cite">Whitelaw, M., &amp; Mackenzie, A. <i>ALA Lens</i>. Atlas of Living Australia. <a href="https://www.ala.org.au/lens/" target="_blank" rel="noopener">ala.org.au/lens</a></p>
+      <p class="cite">Whitelaw, M., et al. (2026). Designing for biodiversity data in place. <i>People and Nature</i>. <a href="https://doi.org/10.1002/pan3.70384" target="_blank" rel="noopener">doi.org/10.1002/pan3.70384</a></p>
     </div>
   </aside>
 
